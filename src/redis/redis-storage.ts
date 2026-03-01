@@ -388,9 +388,11 @@ export class RedisStorage {
   }
 
   /**
-   * Wait for Redis connection
+   * Wait for Redis connection.
+   * @param timeout - Max wait in ms. Use `Infinity` or `null` to wait until connected (no timeout).
+   * @default 5000
    */
-  async waitForConnection(timeout = 5000): Promise<void> {
+  async waitForConnection(timeout: number | null = 5000): Promise<void> {
     if (this.isConnected()) return;
 
     // If client is already in a terminal failure state, reject immediately
@@ -399,18 +401,26 @@ export class RedisStorage {
       return Promise.reject(new Error(`Redis connection already closed (status: ${status})`));
     }
 
+    const useTimeout = timeout != null && Number.isFinite(timeout) && timeout > 0;
+
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        reject(new Error('Redis connection timeout'));
-      }, timeout);
+      const timer = useTimeout
+        ? setTimeout(() => {
+            reject(new Error('Redis connection timeout'));
+          }, timeout)
+        : undefined;
+
+      const cleanup = () => {
+        if (timer !== undefined) clearTimeout(timer);
+      };
 
       this.client.once('ready', () => {
-        clearTimeout(timer);
+        cleanup();
         resolve();
       });
 
       this.client.once('error', (err) => {
-        clearTimeout(timer);
+        cleanup();
         reject(err);
       });
     });

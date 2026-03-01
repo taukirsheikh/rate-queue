@@ -37,7 +37,7 @@ Same options as RateLimiter, plus:
 
 **Required:** `redis` — `{ url }` or `{ host, port }` or `{ client }`, and optional `keyPrefix`, `password`, `db`, etc.
 
-**Extra options:** `pollInterval` (default 50), `heartbeatInterval` (default 30000), `clearOnStart` (default false, useful in tests).
+**Extra options:** `pollInterval` (default 50), `heartbeatInterval` (default 30000), `clearOnStart` (default false, useful in tests), `readyTimeout` (default `Infinity` — wait until Redis connects; set a number to fail after that many ms).
 
 **Methods:** Same as RateLimiter, plus:
 

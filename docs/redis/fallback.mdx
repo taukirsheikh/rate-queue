@@ -1,14 +1,84 @@
 ---
 title: When Redis is down
-description: Handle connection failures and fall back to in-memory limiting.
+description: Handle connection failures — wait for Redis or fall back to in-memory (with caveats).
 ---
 
 # When Redis is down
 
-**At startup:** `ready()` waits for a connection (default 5s). If Redis is unreachable, `ready()` rejects. Catch that and fall back to an in-memory limiter so your app still runs:
+**At startup** `ready()` waits for a connection (by default until Redis connects). You can **wait until Redis is back** (recommended for multiple instances) or **fall back to in-memory** (risky with multiple instances).
+
+---
+
+## Option 1: Wait until Redis is back (recommended for multiple instances)
+
+With multiple instances, each process has its own memory. If you fall back to an in-memory limiter per instance, the **combined** limit is effectively **N × your per-instance limit**, so you can exceed the intended global threshold. To keep a single shared limit, wait for Redis instead of falling back.
+
+**Simple: just call ready()**
+
+By default the limiter waits until Redis connects. You don’t need a retry loop — just call `await limiter.ready()` and it will resolve when Redis is up.
 
 ```javascript
-import { RateLimiter, DistributedRateLimiter } from '@taukirsheikh/rate-limiter';
+import { DistributedRateLimiter } from 'rate-queue';
+
+const limiter = new DistributedRateLimiter({
+  id: 'api-limiter',
+  maxConcurrent: 10,
+  redis: { url: process.env.REDIS_URL || 'redis://localhost:6379' },
+});
+await limiter.ready();
+const result = await limiter.schedule(() => fetch('/api/data'));
+```
+
+**Custom retry loop** (e.g. to log each attempt):
+
+```javascript
+import { DistributedRateLimiter } from 'rate-queue';
+
+async function createLimiter() {
+  const maxAttempts = 60;
+  const waitMs = 2000;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const limiter = new DistributedRateLimiter({
+        id: 'api-limiter',
+        redis: { url: process.env.REDIS_URL || 'redis://localhost:6379' },
+      });
+      await limiter.ready();
+      return limiter;
+    } catch (err) {
+      if (attempt === maxAttempts) throw err;
+      console.warn(`Redis not ready (attempt ${attempt}/${maxAttempts}), retrying in ${waitMs}ms...`);
+      await new Promise((r) => setTimeout(r, waitMs));
+    }
+  }
+}
+
+const limiter = await createLimiter();
+const result = await limiter.schedule(() => fetch('/api/data'));
+```
+
+**After Redis was lost — wait for reconnection, then retry:**  
+ioredis auto-reconnects. If you need to block until Redis is back (e.g. before retrying a failed operation), use the underlying storage:
+
+```javascript
+// Wait up to 30s for Redis to come back (e.g. after an 'error' from the limiter)
+await limiter.getStorage().waitForConnection(30_000);
+// Then retry your schedule(...) or other logic
+```
+
+If the connection is already up, `waitForConnection()` resolves immediately. If the client is in a terminal state (`end` / `close`), it rejects; otherwise it waits for the next `ready` or times out.
+
+---
+
+## Option 2: Fall back to in-memory (single instance or accept risk)
+
+Only use this if you run a **single instance** or explicitly accept that under Redis outage the combined rate can exceed your intended limit.
+
+**At startup:**
+
+```javascript
+import { RateLimiter, DistributedRateLimiter } from 'rate-queue';
 
 let limiter;
 
@@ -23,9 +93,18 @@ try {
   limiter = new RateLimiter({ maxConcurrent: 5, minTime: 100 });
 }
 
-// Same API: limiter.schedule(...)
 const result = await limiter.schedule(() => fetch('/api/data'));
 ```
+
+**What happens when the connection fails:** If you use a timeout (see API reference `readyTimeout`), `ready()` will reject after that time and your `catch` runs. Otherwise `ready()` waits until Redis connects. The `err` you get is one of:
+
+| Cause | Example `err.message` |
+|--------|------------------------|
+| Timeout (no connection within configured time) | `Redis connection timeout` |
+| Redis not running / connection refused | `connect ECONNREFUSED 127.0.0.1:6379` (ioredis error) |
+| Client already closed | `Redis connection already closed (status: end)` |
+
+So in the snippet above: if connection fails, you see a warning with one of these errors and the app continues with the local limiter.
 
 **After connection:** If Redis goes away later, Redis commands will reject and the limiter emits `error`. In-flight jobs may reject; queued jobs wait. ioredis auto-reconnects, so short outages can recover without extra code.
 

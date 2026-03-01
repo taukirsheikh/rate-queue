@@ -1,10 +1,10 @@
 {
   "$schema": "https://docs.page/schema.json",
-  "name": "@taukirsheikh/rate-limiter",
+  "name": "rate-queue",
   "description": "Rate limit and queue async work in Node.js. In-memory or Redis-backed for multiple servers.",
   "anchors": [
-    { "title": "GitHub", "icon": "github", "href": "https://github.com/taukirsheikh/rate-limiter" },
-    { "title": "npm", "icon": "npm", "href": "https://www.npmjs.com/package/@taukirsheikh/rate-limiter" }
+    { "title": "GitHub", "icon": "github", "href": "https://github.com/taukirsheikh/rate-queue" },
+    { "title": "npm", "icon": "npm", "href": "https://www.npmjs.com/package/rate-queue" }
   ],
   "sidebar": [
     {

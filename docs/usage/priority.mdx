@@ -10,7 +10,7 @@ description: Run important jobs first and wrap existing functions.
 Jobs with a **lower** priority number run first. Use the `Priority` enum or any number.
 
 ```javascript
-import { RateLimiter, Priority } from '@taukirsheikh/rate-limiter';
+import { RateLimiter, Priority } from 'rate-queue';
 
 const limiter = new RateLimiter({ maxConcurrent: 1 });
 

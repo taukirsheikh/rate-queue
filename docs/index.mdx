@@ -7,7 +7,7 @@ description: Control how many tasks run at once and how fast they start.
 
 When you call an API that limits how many requests you can make (e.g. 100 per minute), or when you don’t want to flood a service with too many parallel calls, you need something to **queue** and **pace** your work.
 
-**@taukirsheikh/rate-limiter** does that: you give it async jobs, and it runs them according to rules you set.
+**rate-queue** does that: you give it async jobs, and it runs them according to rules you set.
 
 **Production = multiple Node instances.** In production, Node usually runs on more than one process (containers, PM2 cluster, several servers). Each process has its own memory, so a limit that lives only in one process doesn’t apply to the others. For a **single shared limit** across all instances, use the **Redis-backed** limiter (`DistributedRateLimiter`). The in-memory limiter (`RateLimiter`) is for a single process (e.g. local dev or one instance).
 

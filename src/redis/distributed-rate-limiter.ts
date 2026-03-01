@@ -58,6 +58,14 @@ export interface DistributedRateLimiterOptions extends RateLimiterOptions {
    * @default false
    */
   clearOnStart?: boolean;
+
+  /**
+   * How long to wait for Redis when calling `ready()` (milliseconds).
+   * Use a number (e.g. `60000`) to fail after that many ms, or `Infinity` / `null` to wait until
+   * Redis connects.
+   * @default Infinity
+   */
+  readyTimeout?: number | null;
 }
 
 /**
@@ -108,6 +116,7 @@ export class DistributedRateLimiter extends TypedEventEmitter {
 
   // Redis storage
   private readonly storage: RedisStorage;
+  private readonly readyTimeout: number | null;
   private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   private initPromise: Promise<void> | null = null;
 
@@ -144,6 +153,7 @@ export class DistributedRateLimiter extends TypedEventEmitter {
 
     // Create Redis storage
     this.storage = new RedisStorage(options.redis);
+    this.readyTimeout = options.readyTimeout !== undefined ? options.readyTimeout : Infinity;
 
     // Auto-initialize
     this.initPromise = this.initialize(options.clearOnStart ?? false);
@@ -153,7 +163,7 @@ export class DistributedRateLimiter extends TypedEventEmitter {
    * Initialize the distributed limiter
    */
   private async initialize(clearOnStart: boolean): Promise<void> {
-    await this.storage.waitForConnection();
+    await this.storage.waitForConnection(this.readyTimeout);
 
     if (clearOnStart) {
       await this.storage.clear(this.id);

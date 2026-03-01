@@ -1,4 +1,4 @@
-# @taukirsheikh/rate-limiter
+# rate-queue
 
 Control how many tasks run at once and how fast they start. Use it when you're calling an API that has rate limits, or when you want to avoid overloading a service.
 
@@ -7,13 +7,13 @@ Control how many tasks run at once and how fast they start. Use it when you're c
 **Install**
 
 ```bash
-npm install @taukirsheikh/rate-limiter
+npm install rate-queue
 ```
 
 **Production (multiple instances) — use Redis**
 
 ```javascript
-import { DistributedRateLimiter } from '@taukirsheikh/rate-limiter';
+import { DistributedRateLimiter } from 'rate-queue';
 
 const limiter = new DistributedRateLimiter({
   maxConcurrent: 10,
@@ -24,12 +24,12 @@ await limiter.ready();
 const result = await limiter.schedule(() => fetch('https://api.example.com/data'));
 ```
 
-All instances share the same queue and limits.
+All instances share the same queue and limits. If Redis is down, see the docs for [waiting until Redis is back](https://docs.page/taukirsheikh/rate-queue/redis/fallback) (recommended with multiple instances) vs falling back to in-memory (risky with multiple instances).
 
 **Single process (dev or one instance)** — in-memory
 
 ```javascript
-import { RateLimiter } from '@taukirsheikh/rate-limiter';
+import { RateLimiter } from 'rate-queue';
 
 const limiter = new RateLimiter({
   maxConcurrent: 2,
@@ -43,7 +43,7 @@ const result = await limiter.schedule(() => fetch('https://api.example.com/data'
 Define an async function that calls your API, then run it through the limiter so it’s rate-limited:
 
 ```javascript
-import { DistributedRateLimiter } from '@taukirsheikh/rate-limiter';
+import { DistributedRateLimiter } from 'rate-queue';
 
 // Your API-calling function
 async function fetchUser(id) {
@@ -87,7 +87,7 @@ const user2 = await limitedFetchUser(2);
 
 **Docs**
 
-Full guides and API reference: **[docs.page/taukirsheikh/rate-limiter](https://docs.page/taukirsheikh/rate-limiter)**
+Full guides and API reference: **[docs.page/taukirsheikh/rate-queue](https://docs.page/taukirsheikh/rate-queue)**
 
 **Try the examples**
 
