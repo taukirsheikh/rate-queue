@@ -1,6 +1,6 @@
-# @custom/rate-limiter
 
-A powerful rate limiter for Node.js with TypeScript support and Redis clustering. Similar to [Bottleneck](https://www.npmjs.com/package/bottleneck) but built from scratch.
+
+A powerful rate limiter for Node.js with TypeScript support and Redis clustering built from scratch.
 
 ## Features
 
