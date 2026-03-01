@@ -58,7 +58,7 @@ When calling `schedule(options, fn)` or `wrap(options, fn)`:
 
 | Option | Description |
 |--------|-------------|
-| `priority` | Lower number = higher priority (default 5) |
+| `priority` | Number or `() => number` (e.g. from user role, timezone). Lower = higher priority (default 5). |
 | `weight` | Slots used (default 1) |
 | `id` | Unique id for cancellation |
 | `timeout` | Job timeout in ms |

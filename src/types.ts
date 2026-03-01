@@ -104,10 +104,11 @@ export enum Priority {
  */
 export interface JobOptions {
   /**
-   * Job priority (lower = higher priority)
+   * Job priority (lower = higher priority).
+   * Can be a number or a function called at enqueue time (e.g. for dynamic priority from user, time, etc.).
    * @default Priority.NORMAL (5)
    */
-  priority?: number;
+  priority?: number | (() => number);
 
   /**
    * Job weight (uses this many concurrent slots)

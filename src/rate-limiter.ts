@@ -143,10 +143,13 @@ export class RateLimiter extends TypedEventEmitter {
     const options: JobOptions = typeof optionsOrFn === 'function' ? {} : optionsOrFn;
     const fn = typeof optionsOrFn === 'function' ? optionsOrFn : maybeFn!;
 
+    const resolvedPriority =
+      typeof options.priority === 'function' ? options.priority() : (options.priority ?? 5);
+
     return new Promise<T>((resolve, reject) => {
       const job: Job<T> = {
         id: options.id ?? generateId(),
-        priority: options.priority ?? 5, // Priority.NORMAL
+        priority: resolvedPriority,
         weight: options.weight ?? 1,
         timeout: options.timeout !== undefined ? options.timeout : this.defaultTimeout,
         retryCount: options.retryCount ?? this.defaultRetryCount,

@@ -10,7 +10,8 @@
     "test": "npx tsx src/__tests__/rate-limiter.test.ts",
     "test:redis": "npx tsx src/__tests__/redis-limiter.test.ts",
     "example": "npx tsx examples/basic-usage.ts",
-    "example:redis": "npx tsx examples/redis-usage.ts"
+    "example:redis": "npx tsx examples/redis-usage.ts",
+    "example:features": "npx tsx examples/feature-examples.ts"
   },
   "keywords": [
     "rate-queue",
