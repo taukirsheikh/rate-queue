@@ -1,6 +1,6 @@
 {
   "name": "@taukirsheikh/rate-limiter",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "A powerful rate limiter with concurrency control, priority queues, task scheduling, and Redis clustering support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -32,4 +32,23 @@ const [a, b, c] = await Promise.all([
 
 Only 2 run at once; the third starts after one of the first two completes and 500ms has passed.
 
+**Sample: API function + schedule**
+
+Define an async function that calls your API, then run it through the limiter:
+
+```javascript
+async function fetchUser(id) {
+  const res = await fetch(`https://api.example.com/users/${id}`);
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+}
+
+// Run it through the limiter — same return value
+const user = await limiter.schedule(() => fetchUser(1));
+```
+
+With axios, you can destructure the response: `const { data } = await limiter.schedule(async () => axios.request(config));`
+
+**Running multiple Node instances (production)?** Use the [Redis-backed limiter](/redis/setup) so every instance shares the same limit.
+
 Next: [Concurrency & rate limits](/usage/concurrency).

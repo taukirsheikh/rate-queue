@@ -1,20 +1,20 @@
 ---
 title: When to use Redis
-description: Share rate limits across multiple servers.
+description: Share rate limits across multiple Node instances (production).
 ---
 
 # When to use Redis
 
-The in-memory `RateLimiter` keeps state in a single Node process. If you run **several instances** of your app (e.g. multiple servers or containers), each has its own queue and limits. To share one limit across all of them, use **DistributedRateLimiter** with Redis.
+On **production** you usually run Node on **multiple instances**: several containers, a PM2 cluster, or more than one server. Each process has its own memory. The in-memory `RateLimiter` only knows about one process, so “max 100 per minute” would mean 100 per minute **per instance** — e.g. 5 instances = 500 per minute. To enforce **one shared limit** across all of them, use **DistributedRateLimiter** with Redis.
 
-Example: you want “at most 100 API calls per minute” across 5 servers. With Redis, all 5 share the same counter. With in-memory only, each server could do 100 per minute on its own.
+Example: you want “at most 100 API calls per minute” across 5 instances. With Redis, all 5 share the same counter. With in-memory only, each instance could do 100 per minute on its own.
 
 **Quick comparison**
 
 | | RateLimiter | DistributedRateLimiter |
 |--|-------------|-------------------------|
 | State | In one process | In Redis (shared) |
-| Use when | Single server or per-process limits are fine | Multiple servers, one shared limit |
+| Use when | Single process (dev, or one instance) | **Production: multiple instances**, one shared limit |
 | Dependency | None | Redis (ioredis) |
 
 Next: [Setup & connection](/redis/setup).

@@ -23,18 +23,35 @@ limiter.schedule({ priority: Priority.CRITICAL }, () => handleUrgentRequest());
 
 ## Wrapping a function
 
-Turn any async function into a rate-limited version:
+Turn any async function into a rate-limited one with `limiter.wrap(fn)`. You get a new function with the same signature; each call goes through the limiter.
 
 ```javascript
-const limitedFetch = limiter.wrap(async (url) => {
-  const res = await fetch(url);
+// Your existing async function
+async function getUser(id) {
+  const res = await fetch(`https://api.example.com/users/${id}`);
   return res.json();
-});
+}
 
-// Same as calling limiter.schedule(() => fetch(url).then(r => r.json()))
-const data = await limitedFetch('https://api.example.com/users');
+// Rate-limited version — same args, same return
+const limitedGetUser = limiter.wrap(getUser);
+
+// Call it like normal; the limiter queues and paces the calls
+const user1 = await limitedGetUser(1);
+const user2 = await limitedGetUser(2);
 ```
 
-You can pass options as the first argument: `limiter.wrap({ priority: Priority.HIGH }, fn)`.
+With options (e.g. priority):
+
+```javascript
+const limitedFetch = limiter.wrap(
+  { priority: Priority.HIGH },
+  async (url) => {
+    const res = await fetch(url);
+    return res.json();
+  }
+);
+
+const data = await limitedFetch('https://api.example.com/users');
+```
 
 Next: [Retry & cancellation](/usage/retry-cancel).
