@@ -1,6 +1,6 @@
 {
-  "name": "@custom/rate-limiter",
-  "version": "1.1.0",
+  "name": "@taukirsheikh/rate-limiter",
+  "version": "1.1.1",
   "description": "A powerful rate limiter with concurrency control, priority queues, task scheduling, and Redis clustering support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,6 +24,14 @@
     "clustering"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taukirsheikh/rate-limiter.git"
+  },
+  "homepage": "https://github.com/taukirsheikh/rate-limiter#readme",
+  "bugs": {
+    "url": "https://github.com/taukirsheikh/rate-limiter/issues"
+  },
   "dependencies": {
     "ioredis": "^5.3.2"
   },

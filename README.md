@@ -1,4 +1,4 @@
-
+# @taukirsheikh/rate-limiter
 
 A powerful rate limiter for Node.js with TypeScript support and Redis clustering built from scratch.
 
@@ -18,13 +18,13 @@ A powerful rate limiter for Node.js with TypeScript support and Redis clustering
 ## Installation
 
 ```bash
-npm install @custom/rate-limiter
+npm install @taukirsheikh/rate-limiter
 ```
 
 ## Quick Start
 
 ```typescript
-import { RateLimiter, Priority } from '@custom/rate-limiter';
+import { RateLimiter, Priority } from '@taukirsheikh/rate-limiter';
 
 // Create a limiter
 const limiter = new RateLimiter({
@@ -89,7 +89,7 @@ const results = await Promise.all([
 ### Priority Queuing
 
 ```typescript
-import { Priority } from '@custom/rate-limiter';
+import { Priority } from '@taukirsheikh/rate-limiter';
 
 // Critical jobs run first
 await limiter.schedule(
@@ -206,7 +206,7 @@ For multi-server deployments, use `DistributedRateLimiter` to coordinate rate li
 ### Quick Start (Redis)
 
 ```typescript
-import { DistributedRateLimiter } from '@custom/rate-limiter';
+import { DistributedRateLimiter } from '@taukirsheikh/rate-limiter';
 
 const limiter = new DistributedRateLimiter({
   id: 'api-limiter',          // Shared ID across all servers
